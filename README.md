@@ -12,3 +12,6 @@ Finally, it will be compared to a pre-existing list of businesses that have alre
 4. Find `tel:` and `mailto:` links
 5. Save links to a file (json, csv?)
 6. Match to existing file
+
+### TODO
+- Add logging
