@@ -5,17 +5,21 @@ import requests
 from bs4 import BeautifulSoup
 import time
 from urllib.parse import urlparse
+import random
 
 
 class CocCrawler:
     def __init__(self, coc_url='http://business.andersonville.org/list'):
+        """
+        Records of links stored in self.biz_info
+        {'biz1_url': {
+            'links': {'biz1_url/path1', 'biz1_url/path2', 'biz1_url/path3'},
+            'email': {'info@biz.com', 'info2@biz.com'},
+            'phone': {'1234567', '9000000'}
+        }}
+        :param coc_url: str
+        """
         self.coc_url = coc_url
-        # Main object that stores business site, links, and points of contact
-        # {'biz1_url': {
-        #     'links': {'biz1_url/path1', 'biz1_url/path2', 'biz1_url/path3'},
-        #     'email': {'info@biz.com', 'info2@biz.com'},
-        #     'phone': {'1234567', '9000000'}
-        # }}
         self.biz_info = {}
 
     def get_domain_links(self, url):
@@ -34,13 +38,35 @@ class CocCrawler:
         :param url: str
         :return links: list
         """
+        sleep_time = random.randint(10, 15)
+        print('Sleeping %i seconds...' % sleep_time)
+        time.sleep(sleep_time)
+
         print('Getting link {}'.format(url))
-        session = requests.get(self.coc_url)
-        soup = BeautifulSoup(session.text)
+        session = requests.get(url)
+        print('SESSION RESPONSE: {}'.format(session.status_code))
+        soup = BeautifulSoup(session.text, features='lxml')
         links = [link.get('href') for link in soup.find_all('a')]
-        print('Sleeping...')
-        time.sleep(8)
         return links
+
+    def filter_domain(self, links, domain):
+        """
+        From a list of links, only get domain links and filter out bad possible links
+        :param links: str
+        :param domain: str
+        :return d_links: str
+        """
+        d_links = {link for link in links if domain in link}
+        link_list = list(d_links)
+        blacklist = ['.png', '.jpg', '.jpeg', '.pdf', 'mailto:', 'tel:']
+
+        for d in link_list:
+            for bl in blacklist:
+                if bl in d:
+                    d_links.remove(d)
+                    print('Blacklisted: ', d)
+                    continue
+        return d_links
 
     def crawl_main(self):
         """
@@ -68,7 +94,7 @@ class CocCrawler:
             b_link = sb_links.pop()
             print('Getting sub biz link from {}'.format(b_link))
             r_biz = requests.get(b_link)
-            biz_soup = BeautifulSoup(r_biz.text)
+            biz_soup = BeautifulSoup(r_biz.text, features='lxml')
             for l in biz_soup.find_all('a'):
                 if l.get_text() == 'Visit Website':
                     biz_link = l.get('href')
@@ -82,21 +108,30 @@ class CocCrawler:
         """
         to_crawl = {biz_url}
         crawled = set()
+        domain = urlparse(biz_url).netloc
         counter = 0
         # check if difference of crawled and sites to crawl is nothing
+        print('Crawling business site ', biz_url)
         while to_crawl - crawled and counter < limit:
             biz_link = to_crawl.pop()
             links = self.get_links(biz_link)
-            d_links = {link for link in links if 'ql' in link}
-            to_crawl.update(d_links)
-            emails = {link for link in links if 'mailto:' in link}
-            phones = {link for link in links if 'tel:' in link}
+            if links:
+                d_links = self.filter_domain(links, domain)
+                print('Found domain links: {}'.format(d_links))
+                to_crawl.update(d_links)
+                emails = {link for link in links if 'mailto:' in link}
+                print('Found emails: {}'.format(emails))
+                phones = {link for link in links if 'tel:' in link}
+                print('Found phone numbers: {}'.format(phones))
 
-            self.biz_info[biz_url]['email'].update(emails)
-            self.biz_info[biz_url]['phone'].update(phones)
-            self.biz_info[biz_url]['links'].update(d_links)
+                self.biz_info[biz_url]['email'].update(emails)
+                self.biz_info[biz_url]['phone'].update(phones)
+                self.biz_info[biz_url]['links'].update(d_links)
+            else:
+                print('No links found')
 
             crawled.add(biz_link)
+            print('Finished crawling url %i' % counter)
             counter += 1
 
     def run(self):
@@ -108,5 +143,3 @@ class CocCrawler:
 if __name__ == '__main__':
     crawler = CocCrawler()
     crawler.run()
-
-
