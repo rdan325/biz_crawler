@@ -89,8 +89,9 @@ class CocCrawler:
         links = self.get_links(sub_link)
         sb_links = {link for link in links if 'member' in link}
         while sb_links:
-            print('Sleeping')
-            time.sleep(10)
+            sleep_time = random.randint(10, 15)
+            print('Sleeping %i seconds...' % sleep_time)
+            time.sleep(sleep_time)
             b_link = sb_links.pop()
             print('Getting sub biz link from {}'.format(b_link))
             r_biz = requests.get(b_link)
@@ -99,12 +100,12 @@ class CocCrawler:
                 if l.get_text() == 'Visit Website':
                     biz_link = l.get('href')
                     print('Found biz_link {}'.format(biz_link))
-                    self.biz_info.append({biz_link: {'links': set(), 'email': set(), 'phone': set()}})
+                    self.biz_info[biz_link] = {'links': set(), 'email': set(), 'phone': set()}
                     break
 
     def crawl_biz(self, biz_url, limit=20):
         """
-        Recursively crawl business page to get contact info
+        crawl single business page to get all contact info
         """
         to_crawl = {biz_url}
         crawled = set()
@@ -134,7 +135,7 @@ class CocCrawler:
             print('Finished crawling url %i' % counter)
             counter += 1
 
-    def run(self):
+    def run_all(self):
         self.crawl_main()
         for biz_link in self.biz_info.keys():
             self.crawl_biz(biz_link)
@@ -142,4 +143,4 @@ class CocCrawler:
 
 if __name__ == '__main__':
     crawler = CocCrawler()
-    crawler.run()
+    crawler.run_all()

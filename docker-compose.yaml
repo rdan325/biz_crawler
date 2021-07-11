@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  crawl_subs:
+    build: .
+    command: ["python", "crawl_subs.py"]
+  crawl_biz:
+    build: .
+    command: ["python", "crawl_biz.py"]

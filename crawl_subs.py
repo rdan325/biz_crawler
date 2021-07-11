@@ -5,16 +5,15 @@ Expecting many emails including artistic@BabesWithBlades.org, business@babeswith
 """
 
 from crawler import CocCrawler
-import sys
 import json
 
-test_url = sys.argv[1]
+homepage = 'http://business.andersonville.org/list'
 
 if __name__ == '__main__':
     coc_crawler = CocCrawler()
-    print('Testing site ', test_url)
-    coc_crawler.biz_info = {test_url: {'links': set(), 'email': set(), 'phone': set()}}
-    coc_crawler.crawl_biz(test_url)
+    print('Getting all biz_sites')
+    coc_crawler.crawl_main()
     print(coc_crawler.biz_info)
+    # upload them all to a json file at the end
     with open('biz_info.json', 'w') as file:
         file.write(json.dumps(coc_crawler.biz_info))
