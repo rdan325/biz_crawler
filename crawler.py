@@ -56,6 +56,7 @@ class CocCrawler:
         :param domain: str
         :return d_links: str
         """
+        # TODO if starts with '/' use as domain
         d_links = {link for link in links if domain in link}
         link_list = list(d_links)
         blacklist = ['.png', '.jpg', '.jpeg', '.pdf', 'mailto:', 'tel:']
@@ -116,6 +117,7 @@ class CocCrawler:
         while to_crawl - crawled and counter < limit:
             biz_link = to_crawl.pop()
             links = self.get_links(biz_link)
+            print('Links from page {}'.format(links))
             if links:
                 d_links = self.filter_domain(links, domain)
                 print('Found domain links: {}'.format(d_links))

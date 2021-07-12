@@ -16,4 +16,4 @@ if __name__ == '__main__':
     print(coc_crawler.biz_info)
     # upload them all to a json file at the end
     with open('biz_info.json', 'w') as file:
-        file.write(json.dumps(coc_crawler.biz_info))
+        file.write(json.dumps(coc_crawler.biz_info))  # TODO write as list instead of json
