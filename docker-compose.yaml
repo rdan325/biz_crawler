@@ -6,4 +6,7 @@ services:
     command: ["python", "crawl_subs.py"]
   crawl_biz:
     build: .
-    command: ["python", "crawl_biz.py"]
+    image: biz_crawler:master
+    command: ["python", "./crawl_biz.py"]
+    volumes:
+      - /c/biz_crawl_data/:/var/opt

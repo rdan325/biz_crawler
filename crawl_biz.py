@@ -6,12 +6,14 @@ from crawler import CocCrawler
 import os
 import re
 
-DATA_PATH = 'C:/biz_crawl_data'
+DATA_PATH = '/var/opt'
 JSON_FILE = os.environ.get('JSON_FILE', 'biz_sites.json')
+
 
 def list_to_dict(lst):
     d = {l: {'links': set(), 'email': set(), 'phone': set()} for l in lst}
     return d
+
 
 if __name__ == '__main__':
     json_path = os.path.join(DATA_PATH, JSON_FILE)
@@ -22,7 +24,6 @@ if __name__ == '__main__':
     biz_data = list_to_dict(data)
     coc_crawler = CocCrawler()
     coc_crawler.biz_info = biz_data
-    print('All links: {}'.format(coc_crawler.biz_info.keys()))
 
     for url in coc_crawler.biz_info.keys():
         print('Testing site ', url)

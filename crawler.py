@@ -27,9 +27,12 @@ class CocCrawler:
         Get all links from a page
         :return links: list
         """
-        domain = urlparse(url).netloc
+        parsed_url = urlparse(url)
         links = self.get_links(url)
-        d_links = [link for link in links if domain in link]
+        # if link starts with a "/", it is a path and should be considered a domain link
+        path_only = [parsed_url.scheme + '://' + parsed_url.netloc + link for link in links if link[0] == '/']
+        d_links = [link for link in links if parsed_url.netloc in link]
+        d_links += path_only
         return d_links
 
     def get_links(self, url):
@@ -43,21 +46,26 @@ class CocCrawler:
         time.sleep(sleep_time)
 
         print('Getting link {}'.format(url))
-        session = requests.get(url)
+        session = requests.get(url)  # TODO handle SSLError, other Exceptions
         print('SESSION RESPONSE: {}'.format(session.status_code))
         soup = BeautifulSoup(session.text, features='lxml')
+        # get non-null href links
         links = [link.get('href') for link in soup.find_all('a')]
+        links = [link for link in links if link]
         return links
 
-    def filter_domain(self, links, domain):
+    def filter_domain(self, links, parsed_url):
         """
         From a list of links, only get domain links and filter out bad possible links
         :param links: str
         :param domain: str
         :return d_links: str
         """
-        # TODO if starts with '/' use as domain
-        d_links = {link for link in links if domain in link}
+
+        # if link starts with a "/", it is a path and should be considered a domain link
+        path_only = {parsed_url.scheme + '://' + parsed_url.netloc + link for link in links if link[0] == '/'}
+        d_links = {link for link in links if parsed_url.netloc in link}
+        d_links.update(path_only)
         link_list = list(d_links)
         blacklist = ['.png', '.jpg', '.jpeg', '.pdf', 'mailto:', 'tel:']
 
@@ -119,7 +127,8 @@ class CocCrawler:
             links = self.get_links(biz_link)
             print('Links from page {}'.format(links))
             if links:
-                d_links = self.filter_domain(links, domain)
+                parsed_url = urlparse(biz_url)
+                d_links = self.filter_domain(links, parsed_url)
                 print('Found domain links: {}'.format(d_links))
                 to_crawl.update(d_links)
                 emails = {link for link in links if 'mailto:' in link}
