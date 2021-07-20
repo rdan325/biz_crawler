@@ -5,6 +5,7 @@ Crawl biz sites from a json file
 from crawler import CocCrawler
 import os
 import re
+import json
 
 DATA_PATH = '/var/opt'
 JSON_FILE = os.environ.get('JSON_FILE', 'biz_sites.json')

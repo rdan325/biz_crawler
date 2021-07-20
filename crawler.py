@@ -46,7 +46,12 @@ class CocCrawler:
         time.sleep(sleep_time)
 
         print('Getting link {}'.format(url))
-        session = requests.get(url)  # TODO handle SSLError, other Exceptions
+        try:
+            session = requests.get(url)  # TODO handle SSLError, other Exceptions
+        except Exception as e:
+            print('Exception in getting page: {}'.format(str(e)))
+            print('Skipping...')
+            return None
         print('SESSION RESPONSE: {}'.format(session.status_code))
         soup = BeautifulSoup(session.text, features='lxml')
         # get non-null href links
@@ -118,7 +123,6 @@ class CocCrawler:
         """
         to_crawl = {biz_url}
         crawled = set()
-        domain = urlparse(biz_url).netloc
         counter = 0
         # check if difference of crawled and sites to crawl is nothing
         print('Crawling business site ', biz_url)
