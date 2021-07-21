@@ -7,7 +7,7 @@ import os
 import re
 import json
 
-DATA_PATH = '/var/opt'
+DATA_PATH = os.environ.get('DATA_PATH', '/var/opt')
 JSON_FILE = os.environ.get('JSON_FILE', 'biz_sites.json')
 
 
