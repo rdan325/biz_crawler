@@ -9,6 +9,12 @@ try:
 except ImportError:
      from urlparse import urlparse
 import random
+import signal
+
+
+def handler(signum, frame):
+    print('Signal handler called with signal', signum)
+    raise OSError('Site took too long')
 
 
 class CocCrawler:
@@ -49,12 +55,19 @@ class CocCrawler:
         time.sleep(sleep_time)
 
         print('Getting link {}'.format(url))
+        # Set timeout for 30 seconds
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(30)
         try:
             session = requests.get(url)  # TODO handle SSLError, other Exceptions
+        except OSError:
+            print('30 second Timeout! Skipping page')
+            return None
         except Exception as e:
             print('Exception in getting page: {}'.format(str(e)))
             print('Skipping...')
             return None
+        signal.alarm(0)
         print('SESSION RESPONSE: {}'.format(session.status_code))
         soup = BeautifulSoup(session.text, features='lxml')
         # get non-null href links
