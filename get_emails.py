@@ -1,4 +1,5 @@
 import os
+import json
 
 DATA_PATH = os.environ.get('DATA_PATH', '/var/opt')
 
@@ -9,7 +10,7 @@ def all_emails():
     for site in crawled_sites:
         if site != 'biz_sites.json':
             with open(os.path.join(DATA_PATH, site), 'r') as file:
-                text = file.read()
+                text = json.load(file)
             data = eval(text)
             strip_site = site.strip('biz_').strip('.json')
             emails.update({strip_site: data['email']})
