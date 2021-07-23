@@ -8,7 +8,7 @@ def all_emails():
     emails = {}
     for site in crawled_sites:
         if site != 'biz_sites.json':
-            with open(site, 'r') as file:
+            with open(os.path.join(DATA_PATH, site), 'r') as file:
                 text = file.read()
             data = eval(text)
             strip_site = site.strip('biz_').strip('.json')
