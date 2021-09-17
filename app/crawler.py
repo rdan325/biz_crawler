@@ -10,6 +10,11 @@ except ImportError:
      from urlparse import urlparse
 import random
 import signal
+import os
+import json
+
+DATA_PATH = os.environ.get('DATA_PATH', '/var/opt')
+JSON_FILE = os.environ.get('JSON_FILE', 'biz_sites.json')
 
 
 def handler(signum, frame):
@@ -29,7 +34,11 @@ class CocCrawler:
         :param coc_url: str
         """
         self.coc_url = coc_url
+        self.json_path = os.path.join(DATA_PATH, JSON_FILE)
         self.biz_info = {}
+
+        # create file for json data
+        open(self.json_path, 'a').close()
 
     def get_domain_links(self, url):
         """
@@ -130,7 +139,10 @@ class CocCrawler:
                 if l.get_text() == 'Visit Website':
                     biz_link = l.get('href')
                     print('Found biz_link {}'.format(biz_link))
+                    # save to object and also to file
                     self.biz_info[biz_link] = {'links': set(), 'email': set(), 'phone': set()}
+                    with open(self.json_path, 'w') as file:
+                        json.dump(self.biz_info, file)
                     break
 
     def crawl_biz(self, biz_url, limit=20):

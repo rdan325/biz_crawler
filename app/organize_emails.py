@@ -1,3 +1,5 @@
+"""Get top 3 emails from each site and sort them into a csv for manual viewing"""
+
 import pandas as pd
 import os
 import re
