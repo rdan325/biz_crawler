@@ -12,7 +12,7 @@ Once business sites are stored, we crawl each of them to look for contact info l
 
 ## Running
 
-This is best run using docker and docker-compose. You can build and run the full thing using `docker-compose -f docker-compose.prod.yaml up --build`. Or you can do it in parts by running each service with `docker-compose -f docker-compose.dev.yaml up <SERVICE> --build`.
+This is best run using docker and docker-compose. You can build and run the full thing using `docker-compose up --build`. Or you can do it in parts by running each service with `docker-compose -f docker-compose.dev.yaml up <SERVICE> --build`.
 
 Not currently in docker but you can also 
 
